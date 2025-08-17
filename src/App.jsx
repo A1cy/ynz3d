@@ -9,6 +9,7 @@ import Works from './sections/Works';
 import ContactSummary from './sections/ContactSummary';
 import Contact from './sections/Contact';
 import { useProgress } from '@react-three/drei';
+import Galaxy from './components/Galaxy';
 
 const App = () => {
   const { progress } = useProgress();
@@ -22,6 +23,19 @@ const App = () => {
 
   return (
     <ReactLenis root className="relative w-screen min-h-screen overflow-x-auto">
+      {/* Galaxy Background */}
+      <div className="fixed inset-0 w-full h-full z-[-100]">
+        <Galaxy 
+          mouseRepulsion={true}
+          mouseInteraction={true}
+          density={1.2}
+          glowIntensity={0.4}
+          saturation={0.6}
+          hueShift={220}
+          transparent={false}
+        />
+      </div>
+      
       {!isReady && (
         <div className="fixed inset-0 z-[999] flex flex-col items-center justify-center bg-black text-white transition-opacity duration-700 font-light">
           <p className="mb-4 text-xl tracking-widest animate-pulse">

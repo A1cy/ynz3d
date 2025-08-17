@@ -14,10 +14,10 @@ results driven webs/apps`;
         subTitle={'404 No Bugs Found'}
         title={'YNZ'}
         text={text}
-        textColor={'text-black'}
+        textColor={'text-white'}
       />
       <figure
-        className="absolute inset-0 -z-50"
+        className="absolute inset-0 z-10"
         style={{ width: '100vw', height: '100vh' }}
       >
         <Canvas

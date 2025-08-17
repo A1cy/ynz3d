@@ -15,6 +15,47 @@ export function Ynz(props) {
   const { nodes, materials, animations } = useGLTF('/models/ynz.glb');
   const { actions } = useAnimations(animations, group);
 
+  // Mouse and scroll interaction state
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+  const [scroll, setScroll] = useState(0);
+
+  // Event listeners for mouse and scroll
+  useEffect(() => {
+    const handleMouseMove = (event) => {
+      setMouse({
+        x: (event.clientX / window.innerWidth) * 2 - 1, // Normalize to -1 to 1
+        y: -(event.clientY / window.innerHeight) * 2 + 1, // Normalize to -1 to 1
+      });
+    };
+
+    const handleScroll = () => {
+      setScroll(window.scrollY * 0.002); // Scale scroll for rotation
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  // Smooth rotation based on mouse and scroll
+  useFrame((state, delta) => {
+    if (worldRef.current) {
+      // Mouse-based rotation (subtle movement)
+      const targetRotationX = mouse.y * 0.3;
+      const targetRotationY = mouse.x * 0.3;
+      const targetRotationZ = scroll;
+
+      // Smooth interpolation
+      worldRef.current.rotation.x += (targetRotationX - worldRef.current.rotation.x) * delta * 2;
+      worldRef.current.rotation.y += (targetRotationY - worldRef.current.rotation.y) * delta * 2;
+      worldRef.current.rotation.z += (targetRotationZ - worldRef.current.rotation.z) * delta * 1;
+    }
+  });
+
   useGSAP(() => {
     const tl = gsap.timeline();
 
