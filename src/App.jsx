@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
-import Navbar from "./sections/Navbar";
-import Hero from "./sections/Hero";
-import ServiceSummary from "./sections/ServiceSummary";
-import Services from "./sections/Services";
-import ReactLenis from "lenis/react";
-import About from "./sections/About";
-import Works from "./sections/Works";
-import ContactSummary from "./sections/ContactSummary";
-import Contact from "./sections/Contact";
-import { useProgress } from "@react-three/drei";
+import React, { useEffect, useState } from 'react';
+import Navbar from './sections/Navbar';
+import Hero from './sections/Hero';
+import ServiceSummary from './sections/ServiceSummary';
+import Services from './sections/Services';
+import ReactLenis from 'lenis/react';
+import About from './sections/About';
+import Works from './sections/Works';
+import ContactSummary from './sections/ContactSummary';
+import Contact from './sections/Contact';
+import { useProgress } from '@react-three/drei';
 
 const App = () => {
   const { progress } = useProgress();
@@ -37,17 +37,17 @@ const App = () => {
       )}
       <div
         className={`${
-          isReady ? "opacity-100" : "opacity-0"
+          isReady ? 'opacity-100' : 'opacity-0'
         } transition-opacity duration-1000`}
       >
         <Navbar />
         <Hero />
-        <ServiceSummary />
+        {/* <ServiceSummary />
         <Services />
         <About />
         <Works />
         <ContactSummary />
-        <Contact />
+        <Contact /> */}
       </div>
     </ReactLenis>
   );
