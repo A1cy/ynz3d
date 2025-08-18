@@ -25,7 +25,7 @@ const App = () => {
     <ReactLenis root className="relative w-screen min-h-screen overflow-x-auto">
       {/* Galaxy Background */}
       <div className="fixed inset-0 w-full h-full z-[-100]">
-        <HarmonizedGalaxy 
+        <HarmonizedGalaxy
           mouseRepulsion={false}
           density={0.8}
           glowIntensity={0.3}
@@ -36,7 +36,7 @@ const App = () => {
           repulsionStrength={1}
         />
       </div>
-      
+
       {!isReady && (
         <div className="fixed inset-0 z-[999] flex flex-col items-center justify-center bg-black text-white transition-opacity duration-700 font-light">
           <p className="mb-4 text-xl tracking-widest animate-pulse">
@@ -57,12 +57,12 @@ const App = () => {
       >
         <Navbar />
         <Hero />
-        {/* <ServiceSummary />
+        <ServiceSummary />
         <Services />
-        <About />
-        <Works />
+        {/* <About /> */}
+        {/* <Works /> */}
         <ContactSummary />
-        <Contact /> */}
+        <Contact />
       </div>
     </ReactLenis>
   );

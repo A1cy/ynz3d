@@ -1,78 +1,78 @@
 // index.js
 export const servicesData = [
   {
-    title: "FullStack Development",
+    title: "Strategic Communication",
     description:
-      "Your business deserves a fast, secure, and future-proof digital foundation. I develop custom web apps with clean architecture, optimized databases, and seamless integrations—ensuring reliability at every layer.",
+      "We provide integrated solutions that combine creativity, innovation, and expertise to help our clients achieve their marketing and communication goals. Your message deserves to be heard clearly and effectively.",
     items: [
       {
-        title: "Backend Engineering",
-        description: "(REST/GraphQL APIs, Microservices, Auth Systems)",
+        title: "Brand Messaging",
+        description: "(Brand Identity, Voice Development, Strategic Positioning)",
       },
       {
-        title: "Frontend Excellence",
-        description: "(React, Vue, TypeScript, Interactive UI/UX)",
+        title: "Content Strategy",
+        description: "(Editorial Planning, Message Architecture, Audience Analysis)",
       },
       {
-        title: "Database Design",
-        description: "(SQL/NoSQL Optimization, Scalable Structures)",
+        title: "Communication Audits",
+        description: "(Message Effectiveness, Channel Optimization, Impact Assessment)",
       },
     ],
   },
   {
-    title: "DevOps & Cloud Solutions",
+    title: "Digital Media Solutions",
     description:
-      "Deploying software shouldn't be a gamble. I automate infrastructure, enforce security, and leverage cloud platforms (AWS/Azure) to keep your app running smoothly—24/7, at any scale.",
+      "We anticipate the future of the new media landscape and contribute to shaping its features. Effective communication makes all the difference in today's digital world.",
     items: [
       {
-        title: "CI/CD Pipelines",
-        description: "(GitHub Actions, Docker, Kubernetes)",
+        title: "Social Media Strategy",
+        description: "(Platform Optimization, Engagement Campaigns, Community Building)",
       },
       {
-        title: "Server Management ",
-        description: "(Linux, Nginx, Load Balancing)",
+        title: "Digital Content Creation",
+        description: "(Video Production, Interactive Media, Visual Storytelling)",
       },
       {
-        title: "Performance Tuning",
-        description: "(Caching, Compression, Lighthouse 90+ Scores)",
+        title: "Media Planning",
+        description: "(Channel Selection, Budget Allocation, Performance Tracking)",
       },
     ],
   },
   {
-    title: "Security & Optimization",
+    title: "Marketing Excellence",
     description:
-      "Slow or hacked apps destroy trust. I harden security (XSS/SQLI protection, OAuth) and optimize bottlenecks so your app stays fast, safe, and scalable as you grow.",
+      "Our team of communication experts is always ready to help businesses connect with their audiences. We understand that effective communication makes all the difference in organizational success.",
     items: [
       {
-        title: "Code Audits",
-        description: "(Refactoring, Tech Debt Cleanup)",
+        title: "Campaign Development",
+        description: "(Creative Concepting, Multi-Channel Campaigns, Brand Activation)",
       },
       {
-        title: "Pen Testing",
-        description: "(Vulnerability Assessments)",
+        title: "Market Research",
+        description: "(Audience Insights, Competitive Analysis, Trend Forecasting)",
       },
       {
-        title: "SEO Tech Stack",
-        description: "(SSR, Metadata, Structured Data)",
+        title: "Performance Analytics",
+        description: "(ROI Measurement, Engagement Metrics, Optimization Strategies)",
       },
     ],
   },
   {
-    title: "Web & Mobile Apps",
+    title: "Client Support & Consulting",
     description:
-      "A clunky interface can sink even the best ideas. I craft responsive, pixel perfect web and mobile apps (React Native/Flutter) that users love—bridging design and functionality seamlessly.",
+      "Our technical support team is available 24/7 to serve you and answer your questions and inquiries. We work with our clients to develop clear messages that resonate with their target audiences.",
     items: [
       {
-        title: "Cross-Platform Apps",
-        description: "(Single codebase for iOS/Android/Web)",
+        title: "24/7 Support",
+        description: "(Round-the-clock Assistance, Quick Response, Expert Guidance)",
       },
       {
-        title: "PWAs",
-        description: "(Offline mode, Push Notifications)",
+        title: "Strategic Consulting",
+        description: "(Business Communication, Growth Planning, Solution Architecture)",
       },
       {
-        title: "E-Commerce",
-        description: "(Checkout flows, Payment Gateways, Inventory APIs)",
+        title: "Training & Workshops",
+        description: "(Communication Skills, Digital Literacy, Team Development)",
       },
     ],
   },
@@ -171,11 +171,11 @@ export const projects = [
   },
 ];
 export const socials = [
-  { name: "Instagram", href: "https://www.instagram.com/ali.sanatidev/reels/" },
+  { name: "Instagram", href: "https://www.instagram.com/ynz.sa/" },
   {
-    name: "Youtube",
-    href: "https://www.youtube.com/channel/UCZhtUWTtk3bGJiMPN9T4HWA",
+    name: "Twitter",
+    href: "https://twitter.com/ynz_sa",
   },
-  { name: "LinkedIn", href: "https://www.linkedin.com/in/ali-sanati/" },
-  { name: "GitHub", href: "https://github.com/Ali-Sanati" },
+  { name: "LinkedIn", href: "https://www.linkedin.com/company/ynz-sa/" },
+  { name: "Website", href: "https://ynz.sa" },
 ];

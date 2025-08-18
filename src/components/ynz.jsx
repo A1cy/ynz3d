@@ -100,39 +100,79 @@ function SimplePhoenix(props) {
 
 function PhoenixWithAnimations(props) {
   const group = useRef();
-  const { nodes, materials, animations, scene } = useGLTF('/models/phoenix_bird/scene.gltf');
+  const { nodes, materials, animations, scene } = useGLTF('/models/phoenix_bird.glb');
   const { actions, mixer } = useAnimations(animations, group);
   
   const interactions = useHarmonizedInteractions();
   
-  // Debug what animations we actually have
-  console.log('🔥 Phoenix Animation Debug:');
-  console.log('- Animations count:', animations.length);
-  console.log('- Animation names:', animations.map(anim => anim.name));
-  console.log('- Available actions:', actions ? Object.keys(actions) : 'None');
-  console.log('- Model nodes with bones:', Object.keys(nodes).filter(name => name.includes('B_')));
+  // Check for original animations (cleaned up debug)
+  const hasAnimations = animations.length > 0;
 
   useFrame((state, delta) => {
     if (!group.current) return;
     
     const { mouse, scroll, isActive } = interactions.model3D;
     
-    // Responsive mouse movement (keeping this)
-    const sensitivity = isActive ? 1.2 : 0.6;
-    const targetRotationY = mouse.x * sensitivity;
-    const targetRotationX = mouse.y * sensitivity * 0.8;
+    // ENHANCED MOUSE INTERACTION - Much more responsive
+    const baseSensitivity = isActive ? 2.5 : 1.8; // Increased base sensitivity
+    const mouseInfluence = isActive ? 1.5 : 1.2; // Extra influence when active
     
-    group.current.rotation.y += (targetRotationY - group.current.rotation.y) * delta * 6;
-    group.current.rotation.x += (targetRotationX - group.current.rotation.x) * delta * 6;
+    // Enhanced rotation tracking
+    const targetRotationY = mouse.x * baseSensitivity * mouseInfluence;
+    const targetRotationX = mouse.y * baseSensitivity * mouseInfluence * 0.8;
+    
+    // Super responsive rotation with higher lerp speed
+    const rotationSpeed = isActive ? 12 : 8; // Much faster response
+    group.current.rotation.y += (targetRotationY - group.current.rotation.y) * delta * rotationSpeed;
+    group.current.rotation.x += (targetRotationX - group.current.rotation.x) * delta * rotationSpeed;
+    
+    // ENHANCED POSITION TRACKING - Phoenix follows mouse position
+    const mousePositionInfluence = isActive ? 0.8 : 0.4;
+    const targetPositionX = mouse.x * mousePositionInfluence;
+    const targetPositionY = -mouse.y * mousePositionInfluence * 0.6; // Inverted Y for natural movement
+    
+    // Smooth position following
+    const positionSpeed = isActive ? 3 : 2;
+    group.current.position.x += (targetPositionX - group.current.position.x) * delta * positionSpeed;
+    group.current.position.y += (targetPositionY - group.current.position.y) * delta * positionSpeed;
+    
+    // AMAZING SCROLL ANIMATIONS
+    const scrollInfluence = scroll * 0.01; // Convert scroll to usable range
+    
+    // Scroll-based Z movement (Phoenix moves forward/backward with scroll)
+    const targetZ = scrollInfluence * 3;
+    group.current.position.z += (targetZ - group.current.position.z) * delta * 4;
+    
+    // Scroll-based tilt (Phoenix tilts based on scroll direction)
+    const scrollTilt = scrollInfluence * 0.3;
+    group.current.rotation.z += (scrollTilt - group.current.rotation.z) * delta * 5;
+    
+    // Scroll-based scale (Phoenix grows/shrinks slightly with scroll)
+    const scrollScale = 1 + (scrollInfluence * 0.15);
+    const currentScale = group.current.scale.x;
+    const targetScale = Math.max(0.5, Math.min(1.5, scrollScale)); // Clamp scale
+    group.current.scale.setScalar(currentScale + (targetScale - currentScale) * delta * 3);
+    
+    // Dynamic scroll-based wing intensity (faster flapping when scrolling)
+    const scrollSpeed = Math.abs(scroll * 0.1);
+    if (mixer && actions) {
+      Object.values(actions).forEach(action => {
+        if (action) {
+          const baseSpeed = 1;
+          const scrollSpeedMultiplier = 1 + scrollSpeed;
+          action.setEffectiveTimeScale(baseSpeed * scrollSpeedMultiplier);
+        }
+      });
+    }
   });
 
   useGSAP(() => {
     if (!group.current) return;
     
-    // Simple entrance animation
+    // Entrance animation
     gsap.from(group.current.position, {
-      y: 3,
-      duration: 2,
+      y: 5,
+      duration: 3,
       ease: 'power2.out',
     });
 
@@ -140,25 +180,23 @@ function PhoenixWithAnimations(props) {
       x: 0,
       y: 0,
       z: 0,
-      duration: 1.5,
+      duration: 2.5,
       ease: 'back.out(1.7)',
     });
 
-    // Play ORIGINAL model animations if they exist
+    // Play the ORIGINAL animations from the GLB file
     if (actions && Object.keys(actions).length > 0) {
-      console.log('✅ Found original animations! Playing:', Object.keys(actions));
       Object.values(actions).forEach(action => {
         if (action) {
           action.reset().play();
-          action.setLoop(2201, Infinity);
+          action.setLoop(2201, Infinity); // Loop forever
         }
       });
-    } else {
-      console.log('❌ No original animations found in model');
     }
   }, [actions]);
 
-  const sceneObject = nodes.Sketchfab_Scene;
+  // Use the scene from GLB or fallback to first available object
+  const sceneObject = scene || nodes.Scene || Object.values(nodes)[0];
 
   return (
     <group ref={group} {...props} dispose={null}>
@@ -182,6 +220,6 @@ export function Ynz(props) {
   );
 }
 
-useGLTF.preload('/models/phoenix_bird/scene.gltf');
+useGLTF.preload('/models/phoenix_bird.glb');
 
 export default Ynz;
