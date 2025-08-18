@@ -1,31 +1,31 @@
-import { useRef } from "react";
-import Marquee from "../components/Marquee";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
+import { useRef } from 'react';
+import Marquee from '../components/Marquee';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
 
 const ContactSummary = () => {
   const containerRef = useRef(null);
   const items = [
-    "Innovation",
-    "Precision",
-    "Trust",
-    "Collaboration",
-    "Excellence",
+    'Innovation',
+    'Precision',
+    'Trust',
+    'Collaboration',
+    'Excellence',
   ];
   const items2 = [
-    "contact us",
-    "contact us",
-    "contact us",
-    "contact us",
-    "contact us",
+    'contact us',
+    'contact us',
+    'contact us',
+    'contact us',
+    'contact us',
   ];
 
   useGSAP(() => {
     gsap.to(containerRef.current, {
       scrollTrigger: {
         trigger: containerRef.current,
-        start: "center center",
-        end: "+=800 center",
+        start: 'center center',
+        end: '+=800 center',
         scrub: 0.5,
         pin: true,
         pinSpacing: true,
@@ -42,7 +42,7 @@ const ContactSummary = () => {
       <div className="overflow-hidden font-light text-center contact-text-responsive">
         <p>
           " Let's create <br />
-          <span className="font-normal">effective</span> &{" "}
+          <span className="font-normal">effective</span> &{' '}
           <span className="italic">inspiring</span> <br />
           communication strategies <span className="text-gold">together</span> "
         </p>
@@ -50,7 +50,7 @@ const ContactSummary = () => {
       <Marquee
         items={items2}
         reverse={true}
-        className="text-black bg-transparent border-y-2"
+        className="text-white bg-transparent border-y-2"
         iconClassName="stroke-gold stroke-2 text-primary"
         icon="material-symbols-light:square"
       />

@@ -10,6 +10,7 @@ import ContactSummary from './sections/ContactSummary';
 import Contact from './sections/Contact';
 import { useProgress } from '@react-three/drei';
 import HarmonizedGalaxy from './components/HarmonizedGalaxy';
+import ScrollPhoenix from './components/ScrollPhoenix';
 
 const App = () => {
   const { progress } = useProgress();
@@ -55,6 +56,9 @@ const App = () => {
           isReady ? 'opacity-100' : 'opacity-0'
         } transition-opacity duration-1000`}
       >
+        {/* Fixed Position Phoenix - follows scroll across all sections */}
+        {isReady && <ScrollPhoenix />}
+        
         <Navbar />
         <Hero />
         <ServiceSummary />
