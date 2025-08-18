@@ -150,10 +150,10 @@ function ScrollPhoenixModel(props) {
       }
     }
     
-    // OPTIMIZED ANIMATION SPEED (update less frequently)
+    // SLOWED ANIMATION SPEED (50% slower for more graceful movement)
     if (shouldUpdateExpensive && mixer && actions) {
-      const activityMultiplier = isActive ? 1.5 : 1;
-      const sectionMultiplier = 1 + (sectionInfo.index * 0.1);
+      const activityMultiplier = isActive ? 0.75 : 0.5; // Reduced from 1.5:1 to 0.75:0.5
+      const sectionMultiplier = 1 + (sectionInfo.index * 0.05); // Reduced from 0.1 to 0.05
       
       Object.values(actions).forEach(action => {
         if (action) {
@@ -207,10 +207,10 @@ function ScrollPhoenixModel(props) {
   useGSAP(() => {
     if (!group.current) return;
     
-    // Initial entrance animation
+    // Slower initial entrance animation (50% longer duration)
     gsap.from(group.current.position, {
       y: 3,
-      duration: 2.5,
+      duration: 3.75, // Increased from 2.5 to 3.75
       ease: 'power2.out',
     });
 
@@ -218,7 +218,7 @@ function ScrollPhoenixModel(props) {
       x: 0,
       y: 0,
       z: 0,
-      duration: 2,
+      duration: 3, // Increased from 2 to 3
       ease: 'back.out(1.7)',
     });
 
@@ -349,7 +349,7 @@ export function ScrollPhoenix() {
           <directionalLight position={[10, 10, 5]} intensity={1} />
           <directionalLight position={[-10, -10, -5]} intensity={0.5} />
           
-          <Float speed={0.5} rotationIntensity={0.2} floatIntensity={0.5}>
+          <Float speed={0.25} rotationIntensity={0.1} floatIntensity={0.25}>
             <Suspense fallback={<PhoenixLoadingFallback />}>
               <ScrollPhoenixModel scale={phoenixScale} position={[0, 0, 0]} />
             </Suspense>

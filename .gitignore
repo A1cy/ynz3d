@@ -27,3 +27,4 @@ dist-ssr
 .claude/
 .playwright-mcp/
 .claude-flow/
+.swarm/memory.db
