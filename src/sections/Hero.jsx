@@ -22,11 +22,14 @@ results driven webs/apps`;
       >
         <Canvas
           shadows
-          camera={{ position: [0, 0, -5], fov: 25, near: 1, far: 20 }}
+          camera={{ position: [0, 0, 5], fov: 45, near: 0.1, far: 100 }}
+          style={{ background: 'transparent' }}
         >
-          <ambientLight intensity={0.5} />
+          <ambientLight intensity={0.8} />
+          <directionalLight position={[10, 10, 5]} intensity={1} />
+          <directionalLight position={[-10, -10, -5]} intensity={0.5} />
           <Float speed={0.5}>
-            <Ynz scale={isMobile ? 0.7 : 1} />
+            <Ynz scale={isMobile ? 0.7 : 1} position={[0, 0, 0]} />
           </Float>
           <Environment resolution={256}>
             <group rotation={[-Math.PI / 3, 4, 1]}>
