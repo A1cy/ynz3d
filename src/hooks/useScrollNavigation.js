@@ -10,13 +10,48 @@ export const useScrollNavigation = () => {
   const sectionsRef = useRef({});
   const previousSectionRef = useRef('hero');
   
-  // Section configuration with rotation angles
+  // Enhanced section configuration with cinematic zoom and positioning
   const sectionConfig = {
-    hero: { rotation: 0, index: 0 },
-    serviceSummary: { rotation: 90, index: 1 },
-    services: { rotation: 180, index: 2 },
-    contactSummary: { rotation: 270, index: 3 },
-    contact: { rotation: 360, index: 4 }
+    hero: { 
+      rotation: 0, 
+      index: 0,
+      scale: 1.5,          // Zoomed IN significantly (larger scale, closer view)
+      position: 'center',   // Center alignment 
+      offset: { x: 0, y: 0, z: 0 },
+      easing: 'power2.out'
+    },
+    serviceSummary: { 
+      rotation: 90, 
+      index: 1,
+      scale: 2.0,          // Aligned LEFT + zoomed MORE in (even closer view)
+      position: 'left',     // Left alignment
+      offset: { x: -0.8, y: 0.1, z: 0.2 },
+      easing: 'power2.inOut'
+    },
+    services: { 
+      rotation: 180, 
+      index: 2,
+      scale: 1.8,          // Different positioning and zoom level
+      position: 'right',    // Right alignment
+      offset: { x: 0.6, y: 0.2, z: 0.4 },
+      easing: 'power2.inOut'
+    },
+    contactSummary: { 
+      rotation: 270, 
+      index: 3,
+      scale: 1.6,          // Progressive positioning changes
+      position: 'center-left', // Center-left alignment
+      offset: { x: -0.3, y: 0.1, z: 0.2 },
+      easing: 'power2.inOut'
+    },
+    contact: { 
+      rotation: 360, 
+      index: 4,
+      scale: 1.4,          // Final positioning state
+      position: 'center',   // Center alignment
+      offset: { x: 0, y: -0.1, z: 0 },
+      easing: 'power2.in'
+    }
   };
 
   useEffect(() => {
@@ -134,28 +169,56 @@ export const useScrollNavigation = () => {
     };
   };
 
-  // Calculate Phoenix position based on section and scroll
+  // Calculate Phoenix position based on section configuration and scroll
   const getPhoenixPosition = () => {
-    const sectionInfo = getSectionInfo();
+    const config = sectionConfig[currentSection];
     const baseY = 0; // Center vertically
     const baseX = 0; // Center horizontally
     
-    // Subtle position adjustments per section
-    const positionOffsets = {
-      hero: { x: 0, y: 0, z: 0 },
-      serviceSummary: { x: 0.2, y: 0.1, z: 0.2 },
-      services: { x: 0, y: 0.2, z: 0.4 },
-      contactSummary: { x: -0.2, y: 0.1, z: 0.2 },
-      contact: { x: 0, y: -0.1, z: 0 }
-    };
+    if (!config) {
+      return { x: baseX, y: baseY, z: 0 };
+    }
     
-    const offset = positionOffsets[currentSection] || { x: 0, y: 0, z: 0 };
+    // Use section-specific offset from enhanced configuration
+    const offset = config.offset || { x: 0, y: 0, z: 0 };
     
     return {
       x: baseX + offset.x,
       y: baseY + offset.y,
       z: offset.z
     };
+  };
+
+  // Get current section's scale for progressive zoom
+  const getCurrentScale = () => {
+    const config = sectionConfig[currentSection];
+    if (!config) return 1;
+    
+    // Smooth interpolation during transitions
+    if (isTransitioning) {
+      const previousSection = previousSectionRef.current;
+      const previousConfig = sectionConfig[previousSection];
+      const currentScale = config.scale;
+      const previousScale = previousConfig ? previousConfig.scale : 1;
+      
+      // Use section progress for smooth scale interpolation
+      const scaleDiff = currentScale - previousScale;
+      return previousScale + (scaleDiff * sectionProgress);
+    }
+    
+    return config.scale;
+  };
+
+  // Get current section's position alignment
+  const getCurrentPosition = () => {
+    const config = sectionConfig[currentSection];
+    return config ? config.position : 'center';
+  };
+
+  // Get current section's easing for transitions
+  const getCurrentEasing = () => {
+    const config = sectionConfig[currentSection];
+    return config ? config.easing : 'power2.out';
   };
 
   return {
@@ -166,6 +229,9 @@ export const useScrollNavigation = () => {
     getSectionInfo,
     getPhoenixPosition,
     getCurrentRotation,
+    getCurrentScale,
+    getCurrentPosition,
+    getCurrentEasing,
     scrollToSection,
     totalSections: Object.keys(sectionConfig).length
   };

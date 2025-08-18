@@ -17,9 +17,11 @@ function ScrollPhoenixModel(props) {
   const interactions = useHarmonizedInteractions();
   const scrollNav = useScrollNavigation();
   
-  // Track rotation for smooth transitions
+  // Track rotation, position, and scale for smooth transitions
   const targetRotationRef = useRef({ x: 0, y: 0, z: 0 });
   const targetPositionRef = useRef({ x: 0, y: 0, z: 0 });
+  const targetScaleRef = useRef(1);
+  const previousScaleRef = useRef(1);
 
   // Performance optimization - throttle expensive calculations
   const frameCountRef = useRef(0);
@@ -34,10 +36,13 @@ function ScrollPhoenixModel(props) {
     const { mouse, scroll, isActive } = interactions.model3D;
     
     // Cache section info to avoid recalculation on every frame
-    let sectionInfo, phoenixPosition;
+    let sectionInfo, phoenixPosition, currentScale, currentPosition, currentEasing;
     if (shouldUpdateExpensive || scrollNav.currentSection !== lastSectionRef.current) {
       sectionInfo = scrollNav.getSectionInfo();
       phoenixPosition = scrollNav.getPhoenixPosition();
+      currentScale = scrollNav.getCurrentScale();
+      currentPosition = scrollNav.getCurrentPosition();
+      currentEasing = scrollNav.getCurrentEasing();
       lastSectionRef.current = scrollNav.currentSection;
     } else {
       // Use cached values for performance
@@ -46,6 +51,9 @@ function ScrollPhoenixModel(props) {
         index: scrollNav.sectionConfig[scrollNav.currentSection]?.index || 0 
       };
       phoenixPosition = { x: 0, y: 0, z: 0 }; // Simplified for non-update frames
+      currentScale = targetScaleRef.current; // Use cached scale
+      currentPosition = 'center'; // Default position
+      currentEasing = 'power2.out'; // Default easing
     }
     
     // SECTION-BASED ROTATION (Primary rotation based on current section)
@@ -75,10 +83,29 @@ function ScrollPhoenixModel(props) {
     group.current.rotation.x += (targetRotationRef.current.x - group.current.rotation.x) * deltaFactor * rotationSpeed;
     group.current.rotation.z += (targetRotationRef.current.z - group.current.rotation.z) * deltaFactor * 4;
     
-    // OPTIMIZED POSITION APPLICATION (only update when needed)
+    // PROGRESSIVE SCALE SYSTEM (Cinematic zoom levels per section)
     if (shouldUpdateExpensive) {
-      targetPositionRef.current.x = phoenixPosition.x + (mouse.x * mouseInfluence * 0.3);
-      targetPositionRef.current.y = phoenixPosition.y + (-mouse.y * mouseInfluence * 0.2);
+      targetScaleRef.current = currentScale;
+    }
+
+    // DYNAMIC POSITIONING SYSTEM (Left, center, right alignments per section)
+    const getPositionOffset = (position) => {
+      switch (position) {
+        case 'left': return { x: -1.2, y: 0 };
+        case 'right': return { x: 1.2, y: 0 };
+        case 'center-left': return { x: -0.6, y: 0 };
+        case 'center':
+        default: return { x: 0, y: 0 };
+      }
+    };
+
+    // OPTIMIZED POSITION APPLICATION (with dynamic alignment)
+    if (shouldUpdateExpensive) {
+      const positionOffset = getPositionOffset(currentPosition);
+      const scaleAdjustedMouseInfluence = mouseInfluence / Math.max(currentScale, 1); // Adjust mouse sensitivity based on scale
+      
+      targetPositionRef.current.x = phoenixPosition.x + positionOffset.x + (mouse.x * scaleAdjustedMouseInfluence * 0.3);
+      targetPositionRef.current.y = phoenixPosition.y + positionOffset.y + (-mouse.y * scaleAdjustedMouseInfluence * 0.2);
       targetPositionRef.current.z = phoenixPosition.z;
     }
     
