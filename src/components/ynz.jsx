@@ -100,40 +100,39 @@ function SimplePhoenix(props) {
 
 function PhoenixWithAnimations(props) {
   const group = useRef();
-  const phoenixRef = useRef();
-  const { nodes, materials, animations } = useGLTF('/models/phoenix_bird/scene.gltf');
-  const { actions } = useAnimations(animations, group);
+  const { nodes, materials, animations, scene } = useGLTF('/models/phoenix_bird/scene.gltf');
+  const { actions, mixer } = useAnimations(animations, group);
   
   const interactions = useHarmonizedInteractions();
+  
+  // Debug what animations we actually have
+  console.log('🔥 Phoenix Animation Debug:');
+  console.log('- Animations count:', animations.length);
+  console.log('- Animation names:', animations.map(anim => anim.name));
+  console.log('- Available actions:', actions ? Object.keys(actions) : 'None');
+  console.log('- Model nodes with bones:', Object.keys(nodes).filter(name => name.includes('B_')));
 
   useFrame((state, delta) => {
     if (!group.current) return;
     
     const { mouse, scroll, isActive } = interactions.model3D;
     
-    // Increased mouse sensitivity for more responsive movement
+    // Responsive mouse movement (keeping this)
     const sensitivity = isActive ? 1.2 : 0.6;
     const targetRotationY = mouse.x * sensitivity;
     const targetRotationX = mouse.y * sensitivity * 0.8;
     
-    // Faster response to mouse movement
     group.current.rotation.y += (targetRotationY - group.current.rotation.y) * delta * 6;
     group.current.rotation.x += (targetRotationX - group.current.rotation.x) * delta * 6;
-    
-    // Add continuous floating animation
-    if (phoenixRef.current) {
-      phoenixRef.current.position.y += Math.sin(state.clock.elapsedTime * 2) * 0.002;
-      phoenixRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 1.5) * 0.1;
-    }
   });
 
   useGSAP(() => {
     if (!group.current) return;
     
-    // Entrance animation
+    // Simple entrance animation
     gsap.from(group.current.position, {
-      y: 5,
-      duration: 3,
+      y: 3,
+      duration: 2,
       ease: 'power2.out',
     });
 
@@ -141,32 +140,21 @@ function PhoenixWithAnimations(props) {
       x: 0,
       y: 0,
       z: 0,
-      duration: 2.5,
+      duration: 1.5,
       ease: 'back.out(1.7)',
     });
 
-    // Play all available model animations
+    // Play ORIGINAL model animations if they exist
     if (actions && Object.keys(actions).length > 0) {
-      console.log('🔥 Phoenix animations found:', Object.keys(actions));
+      console.log('✅ Found original animations! Playing:', Object.keys(actions));
       Object.values(actions).forEach(action => {
         if (action) {
           action.reset().play();
-          action.setLoop(2201, Infinity); // Loop forever
+          action.setLoop(2201, Infinity);
         }
       });
     } else {
-      console.log('🔥 No built-in animations found, using custom animations');
-    }
-
-    // Add continuous wing flapping animation using GSAP
-    if (phoenixRef.current) {
-      gsap.to(phoenixRef.current.rotation, {
-        x: '+=0.2',
-        duration: 1,
-        ease: 'sine.inOut',
-        repeat: -1,
-        yoyo: true,
-      });
+      console.log('❌ No original animations found in model');
     }
   }, [actions]);
 
