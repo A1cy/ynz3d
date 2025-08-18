@@ -43,7 +43,8 @@ function OptimizedModelLoader({
   onProgress, 
   onError, 
   forceQuality = null,
-  performanceSettings 
+  performanceSettings,
+  modelType = 'ynz'
 }) {
   const [deviceAssessment, setDeviceAssessment] = useState(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -59,6 +60,9 @@ function OptimizedModelLoader({
     const assessment = forceQuality 
       ? { ...assessDeviceCapabilities(), recommendedQuality: forceQuality }
       : assessDeviceCapabilities();
+    
+    // Add model path based on type and quality
+    assessment.modelPath = getModelPath(assessment.recommendedQuality, modelType);
     
     setDeviceAssessment(assessment);
     
@@ -126,7 +130,7 @@ function OptimizedModelLoader({
       setDeviceAssessment(prev => ({
         ...prev,
         recommendedQuality: fallbackQuality,
-        modelPath: getModelPath(fallbackQuality)
+        modelPath: getModelPath(fallbackQuality, modelType)
       }));
       
       setError(null);
@@ -166,7 +170,7 @@ function OptimizedModelLoader({
               setDeviceAssessment(prev => ({
                 ...prev,
                 recommendedQuality: lowerQuality,
-                modelPath: getModelPath(lowerQuality)
+                modelPath: getModelPath(lowerQuality, modelType)
               }));
             }
             lowFPSCount = 0;
@@ -209,7 +213,8 @@ export default function LODManager({
   forceQuality = null,
   onQualityChange = null,
   onLoadingComplete = null,
-  onError = null 
+  onError = null,
+  modelType = 'ynz'
 }) {
   const [modelData, setModelData] = useState(null);
   const [currentQuality, setCurrentQuality] = useState(null);
@@ -242,6 +247,7 @@ export default function LODManager({
         onError={handleError}
         forceQuality={forceQuality}
         performanceSettings={performanceSettings}
+        modelType={modelType}
       />
       
       {/* Pass model data and settings to children */}
@@ -265,15 +271,24 @@ export default function LODManager({
 }
 
 // Helper function for model path mapping
-function getModelPath(quality) {
+function getModelPath(quality, modelType = 'ynz') {
   const modelPaths = {
-    'ultra-low': '/models/optimized/ynz-ultra-low.glb',
-    'low': '/models/optimized/ynz-low.glb',
-    'medium': '/models/optimized/ynz-medium.glb',
-    'high': '/models/optimized/ynz-high.glb'
+    ynz: {
+      'ultra-low': '/models/optimized/ynz-ultra-low.glb',
+      'low': '/models/optimized/ynz-low.glb',
+      'medium': '/models/optimized/ynz-medium.glb',
+      'high': '/models/optimized/ynz-high.glb'
+    },
+    phoenix: {
+      'ultra-low': '/models/optimized/phoenix-ultra-low.glb',
+      'low': '/models/optimized/phoenix-low.glb',
+      'medium': '/models/optimized/phoenix-medium.glb',
+      'high': '/models/optimized/phoenix-high.glb'
+    }
   };
   
-  return modelPaths[quality] || modelPaths['low'];
+  const paths = modelPaths[modelType] || modelPaths.ynz;
+  return paths[quality] || paths['low'];
 }
 
 // Hook for accessing LOD system outside of the component

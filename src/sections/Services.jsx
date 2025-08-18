@@ -24,7 +24,11 @@ const Services = () => {
     });
   }, []);
   return (
-    <section id="services" className="min-h-screen bg-black rounded-t-4xl">
+    <section 
+      id="services" 
+      className="min-h-screen bg-black rounded-t-4xl relative"
+      style={{ zIndex: 15 }} // Higher than Phoenix z-index (5) for text overlay
+    >
       <AnimatedHeaderSection
         subTitle={"Anticipating the Future of New Media"}
         title={"Service"}

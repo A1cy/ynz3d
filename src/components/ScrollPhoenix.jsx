@@ -23,15 +23,19 @@ function ScrollPhoenixModel(props) {
   const targetScaleRef = useRef(1);
   const previousScaleRef = useRef(1);
 
-  // Performance optimization - throttle expensive calculations
+  // Enhanced performance optimization for zoom system
   const frameCountRef = useRef(0);
   const lastSectionRef = useRef('hero');
+  const scaleTransitionRef = useRef(false);
+  const positionTransitionRef = useRef(false);
 
   useFrame((state, delta) => {
     if (!group.current) return;
     
     frameCountRef.current++;
-    const shouldUpdateExpensive = frameCountRef.current % 3 === 0; // Update every 3rd frame
+    // Performance: Update expensive calculations less frequently, except during zoom transitions
+    const isZoomTransitioning = scrollNav.isTransitioning && (scaleTransitionRef.current || positionTransitionRef.current);
+    const shouldUpdateExpensive = isZoomTransitioning || frameCountRef.current % 3 === 0; // Update every frame during zoom transitions, every 3rd frame otherwise
     
     const { mouse, scroll, isActive } = interactions.model3D;
     
@@ -109,19 +113,41 @@ function ScrollPhoenixModel(props) {
       targetPositionRef.current.z = phoenixPosition.z;
     }
     
+    // OPTIMIZED POSITION APPLICATION with transition tracking
+    const positionDifference = Math.sqrt(
+      Math.pow(targetPositionRef.current.x - group.current.position.x, 2) +
+      Math.pow(targetPositionRef.current.y - group.current.position.y, 2) +
+      Math.pow(targetPositionRef.current.z - group.current.position.z, 2)
+    );
+    
+    positionTransitionRef.current = positionDifference > 0.05;
+    
     const positionSpeed = isActive ? 4 : 3;
-    group.current.position.x += (targetPositionRef.current.x - group.current.position.x) * deltaFactor * positionSpeed;
-    group.current.position.y += (targetPositionRef.current.y - group.current.position.y) * deltaFactor * positionSpeed;
+    const enhancedPositionSpeed = positionTransitionRef.current ? positionSpeed * 1.2 : positionSpeed;
+    
+    group.current.position.x += (targetPositionRef.current.x - group.current.position.x) * deltaFactor * enhancedPositionSpeed;
+    group.current.position.y += (targetPositionRef.current.y - group.current.position.y) * deltaFactor * enhancedPositionSpeed;
     group.current.position.z += (targetPositionRef.current.z - group.current.position.z) * deltaFactor * 2;
     
-    // OPTIMIZED SCALE (only during transitions or every 5th frame)
-    if (scrollNav.isTransitioning || frameCountRef.current % 5 === 0) {
-      const baseScale = 1;
-      const transitionScale = scrollNav.isTransitioning ? 0.9 : 1;
-      const targetScale = baseScale * transitionScale;
+    // PROGRESSIVE SCALE APPLICATION (Cinematic zoom system with performance optimization)
+    if (shouldUpdateExpensive || scrollNav.isTransitioning) {
+      const currentScaleValue = group.current.scale.x;
+      const targetScaleValue = targetScaleRef.current;
+      const scaleDifference = Math.abs(targetScaleValue - currentScaleValue);
       
-      const currentScale = group.current.scale.x;
-      group.current.scale.setScalar(currentScale + (targetScale - currentScale) * deltaFactor * 3);
+      // Determine if we're in a scale transition
+      scaleTransitionRef.current = scaleDifference > 0.01;
+      
+      if (scaleTransitionRef.current) {
+        const scaleSpeed = scrollNav.isTransitioning ? 3 : 5; // Optimized speeds for smoothness
+        const newScale = currentScaleValue + (targetScaleValue - currentScaleValue) * deltaFactor * scaleSpeed;
+        group.current.scale.setScalar(newScale);
+        
+        // Track scale changes for mouse interaction adjustments
+        if (Math.abs(targetScaleValue - previousScaleRef.current) > 0.1) {
+          previousScaleRef.current = targetScaleValue;
+        }
+      }
     }
     
     // OPTIMIZED ANIMATION SPEED (update less frequently)
@@ -137,6 +163,46 @@ function ScrollPhoenixModel(props) {
       });
     }
   });
+
+  // GSAP section transitions for cinematic experience
+  useGSAP(() => {
+    if (!group.current) return;
+    
+    const currentScale = scrollNav.getCurrentScale();
+    const currentPosition = scrollNav.getCurrentPosition();
+    const currentEasing = scrollNav.getCurrentEasing();
+    
+    // Get position offset for dynamic alignment
+    const getPositionOffset = (position) => {
+      switch (position) {
+        case 'left': return { x: -1.2, y: 0 };
+        case 'right': return { x: 1.2, y: 0 };
+        case 'center-left': return { x: -0.6, y: 0 };
+        case 'center':
+        default: return { x: 0, y: 0 };
+      }
+    };
+    
+    const positionOffset = getPositionOffset(currentPosition);
+    const phoenixPos = scrollNav.getPhoenixPosition();
+    
+    // Smooth GSAP transitions for scale and position when section changes
+    if (scrollNav.isTransitioning) {
+      gsap.to(targetScaleRef, {
+        current: currentScale,
+        duration: 0.8,
+        ease: currentEasing,
+      });
+      
+      gsap.to(targetPositionRef.current, {
+        x: phoenixPos.x + positionOffset.x,
+        y: phoenixPos.y + positionOffset.y,
+        z: phoenixPos.z,
+        duration: 0.8,
+        ease: currentEasing,
+      });
+    }
+  }, [scrollNav.currentSection, scrollNav.isTransitioning]);
 
   useGSAP(() => {
     if (!group.current) return;
@@ -198,20 +264,36 @@ export function ScrollPhoenix() {
   const isMobile = useMediaQuery({ maxWidth: 640 });
   const isTablet = useMediaQuery({ maxWidth: 1024 });
   const isLaptop = useMediaQuery({ maxWidth: 1400 });
+  const scrollNav = useScrollNavigation();
   
-  // Enhanced responsive sizing with more breakpoints
+  // Dynamic z-index based on current section for text overlay effects
+  const getDynamicZIndex = () => {
+    const section = scrollNav.currentSection;
+    switch (section) {
+      case 'hero': return 10; // Above content, normal visibility
+      case 'serviceSummary': return 5; // Behind text content (section 2)
+      case 'services': return 5; // Behind text content (section 3)  
+      case 'contactSummary': return 10; // Above content again
+      case 'contact': return 10; // Above content
+      default: return 10;
+    }
+  };
+  
+  // Maximum canvas size to fully contain Phoenix wings at all zoom levels
   const getCanvasSize = () => {
-    if (isMobile) return { width: '90vw', height: '60vh', maxWidth: '400px', maxHeight: '300px' };
-    if (isTablet) return { width: '80vw', height: '70vh', maxWidth: '600px', maxHeight: '450px' };
-    if (isLaptop) return { width: '70vw', height: '70vh', maxWidth: '800px', maxHeight: '600px' };
-    return { width: '60vw', height: '70vh', maxWidth: '900px', maxHeight: '650px' };
+    // Make canvas much larger to fully contain the Phoenix with wings spread
+    if (isMobile) return { width: '120vw', height: '100vh', maxWidth: '800px', maxHeight: '600px' };
+    if (isTablet) return { width: '120vw', height: '100vh', maxWidth: '1200px', maxHeight: '800px' };
+    if (isLaptop) return { width: '130vw', height: '100vh', maxWidth: '1600px', maxHeight: '1000px' };
+    return { width: '140vw', height: '100vh', maxWidth: '2000px', maxHeight: '1200px' };
   };
   
   const getPhoenixScale = () => {
-    if (isMobile) return 0.5;
-    if (isTablet) return 0.65;
-    if (isLaptop) return 0.85;
-    return 1;
+    // Base responsive scale that works with progressive zoom system
+    if (isMobile) return 0.4; // Reduced for mobile to accommodate larger zoom levels
+    if (isTablet) return 0.55; // Slightly reduced for tablet
+    if (isLaptop) return 0.75; // Reduced for laptop
+    return 0.9; // Slightly reduced for desktop to allow for larger zoom levels
   };
 
   // Camera settings based on screen size
@@ -224,16 +306,20 @@ export function ScrollPhoenix() {
   const canvasSize = getCanvasSize();
   const phoenixScale = getPhoenixScale();
   const cameraSettings = getCameraSettings();
+  const dynamicZIndex = getDynamicZIndex();
 
   return (
     <div 
-      className="fixed inset-0 pointer-events-none z-10"
+      className="fixed inset-0 pointer-events-none transition-all duration-500 ease-in-out"
       style={{
         width: '100vw',
         height: '100vh',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        zIndex: dynamicZIndex,
+        overflow: 'hidden', // Clip oversized canvas
+        clipPath: 'inset(0)' // Ensure clipping works properly
       }}
     >
       <div
@@ -241,7 +327,10 @@ export function ScrollPhoenix() {
           width: canvasSize.width,
           height: canvasSize.height,
           maxWidth: canvasSize.maxWidth,
-          maxHeight: canvasSize.maxHeight
+          maxHeight: canvasSize.maxHeight,
+          position: 'relative',
+          overflow: 'hidden',
+          margin: '0 auto' // Center the oversized canvas
         }}
       >
         <Canvas

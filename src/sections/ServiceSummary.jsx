@@ -34,7 +34,11 @@ const ServiceSummary = () => {
     });
   });
   return (
-    <section id="service-summary" className="mt-20 overflow-hidden font-light leading-snug text-center mb-42 contact-text-responsive">
+    <section 
+      id="service-summary" 
+      className="mt-20 overflow-hidden font-light leading-snug text-center mb-42 contact-text-responsive relative"
+      style={{ zIndex: 15 }} // Higher than Phoenix z-index (5) for text overlay
+    >
       <div id="title-service-1">
         <p>Strategy</p>
       </div>
